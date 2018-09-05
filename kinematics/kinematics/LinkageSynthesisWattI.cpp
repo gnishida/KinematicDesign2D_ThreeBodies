@@ -55,48 +55,8 @@ namespace kinematics {
 				}
 			}
 			
-			/*
-			points[0] = glm::dvec2(-1.61629, -14.5233);
-			points[1] = glm::dvec2(-8.19234, -18.1515);
-			points[2] = glm::dvec2(-23.6489, -54.2743);
-			points[3] = glm::dvec2(-1.53074, -11.2847);
-			points[4] = glm::dvec2(6.91939, -7.18384);
-			points[5] = glm::dvec2(3.0303, -6.65026);
-			points[6] = glm::dvec2(7.75299, -1.64727);
-			points[7] = glm::dvec2(4.90576, -0.997369);
-			points[8] = glm::dvec2(12.5208, -0.47217);
-			points[9] = glm::dvec2(12.9774, -2.02103);
-			*/
-
-			/*
-			// power shovel
-			points[0] = glm::dvec2(14.4526, 10.6841);
-			points[1] = glm::dvec2(5.72109, 13.0015);
-			points[2] = glm::dvec2(6.75419, 17.1667);
-			points[3] = glm::dvec2(0.660737, 20.2977);
-			points[4] = glm::dvec2(-18.289, 32.679);
-			points[5] = glm::dvec2(-19.5438, 35.2614);
-			points[6] = glm::dvec2(-19.133, 13.4302);
-			points[7] = glm::dvec2(-19.4497, 31.6456);
-			points[8] = glm::dvec2(-17.4255, 7.80664);
-			points[9] = glm::dvec2(-18.248, 23.0335);
-			*/
-
 			// DEBUG
 			if (iter == 0) {
-				/*
-				points[0] = glm::dvec2(11.2199, 15.0296);
-				points[1] = glm::dvec2(0.297775, 15.3521);
-				points[2] = glm::dvec2(8.80676, 15.8258);
-				points[3] = glm::dvec2(0.188685, 23.6491);
-				points[4] = glm::dvec2(-21.3205, 31.4622);
-				points[5] = glm::dvec2(-20.6909, 36.8504);
-				points[6] = glm::dvec2(-25.0378, 34.1323);
-				points[7] = glm::dvec2(-15.1771, 31.4538);
-				points[8] = glm::dvec2(-30.5742, 24.4257);
-				points[9] = glm::dvec2(-34.7407, 19.6037);
-				*/
-
 				points[0] = glm::dvec2(-3.76487, 25.9907);
 				points[1] = glm::dvec2(-4.06804, 17.4689);
 				points[2] = glm::dvec2(-21.797, 38.1363);
@@ -116,7 +76,6 @@ namespace kinematics {
 			
 			solutions.push_back(Solution(0, points, 0, 0, perturbed_poses));
 			cnt++;
-			break;
 		}
 
 		printf("\n");
