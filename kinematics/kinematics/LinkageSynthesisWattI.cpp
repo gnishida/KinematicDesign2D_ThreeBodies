@@ -39,12 +39,9 @@ namespace kinematics {
 			printf("\rsampling %d/%d", cnt, iter + 1);
 
 			// perturbe the poses a little
-			std::vector<std::vector<glm::dmat3x3>> perturbed_poses(poses.size());
-			for (int i = 0; i < poses.size(); i++) {
-				double position_error = 0.0;
-				double orientation_error = 0.0;
-				perturbed_poses[i] = perturbPoses(poses[i], sigmas, position_error, orientation_error);
-			}
+			double position_error = 0.0;
+			double orientation_error = 0.0;
+			std::vector<std::vector<glm::dmat3x3>> perturbed_poses = perturbPoses(poses, sigmas, position_error, orientation_error);
 
 			// sample joints within the linkage region
 			std::vector<glm::dvec2> points(10);
