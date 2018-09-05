@@ -40,7 +40,7 @@ namespace kinematics {
 				e2 = genNormal(0, sigmas[0].first);
 				delta_theta = genNormal(0, sigmas[0].second);
 			}
-			else if (i == perturbed_poses.size() - 1) {	// last pose
+			else if (i == perturbed_poses[i].size() - 1) {	// last pose
 				e1 = genNormal(0, sigmas[2].first);
 				e2 = genNormal(0, sigmas[2].first);
 				delta_theta = genNormal(0, sigmas[2].second);
