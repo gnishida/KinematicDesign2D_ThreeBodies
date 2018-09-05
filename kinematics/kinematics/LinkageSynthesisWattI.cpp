@@ -140,13 +140,13 @@ namespace kinematics {
 			if (r >= 0 && r < dist_map.rows && c >= 0 && c < dist_map.cols) dist += dist_map.at<double>(r, c);
 			else dist += dist_map.rows + dist_map.cols;
 		}
-		//double tortuosity = tortuosityOfTrajectory(solution.poses, solution.points, moving_body);
+		double tortuosity = tortuosityOfTrajectory(solution.poses, solution.points, moving_bodies);
 		std::vector<glm::dvec2> connected_pts;
 		Kinematics kin = constructKinematics(solution.poses, solution.points, moving_bodies, true, fixed_bodies, connected_pts);
 		//double size = glm::length(solution.points[0] - solution.points[2]) + glm::length(solution.points[1] - solution.points[3]) + glm::length(solution.points[0] - connected_pts[0]) + glm::length(solution.points[1] - connected_pts[1]) + glm::length(solution.points[2] - connected_pts[2]) + glm::length(solution.points[3] - connected_pts[3]);
 		double size = glm::length(solution.points[0] - solution.points[2]) + glm::length(solution.points[1] - solution.points[3]) + std::max(std::max(glm::length(solution.points[2] - solution.points[3]), glm::length(solution.points[2] - solution.points[5])), glm::length(solution.points[3] - solution.points[5])) + glm::length(solution.points[1] - solution.points[4]) + glm::length(solution.points[3] - solution.points[4]) + glm::length(solution.points[5] - solution.points[6]);
 
-		return solution.position_error * weights[0] + solution.orientation_error * weights[1] + dist * weights[2] + size * weights[4];
+		return solution.position_error * weights[0] + solution.orientation_error * weights[0] * 10 + dist * weights[1] + (tortuosity - 1) * weights[2] + size * weights[3];
 	}
 
 	int LinkageSynthesisWattI::getType(const std::vector<glm::dvec2>& points) {
@@ -691,6 +691,192 @@ namespace kinematics {
 		if (!withinPolygon(linkage_region_pts, (points[9] + connector_pts[7]) * 0.5)) return false;
 
 		return true;
+	}
+
+	double LinkageSynthesisWattI::tortuosityOfTrajectory(const std::vector<std::vector<glm::dmat3x3>>& poses, const std::vector<glm::dvec2>& points, const std::vector<Object25D>& moving_bodies) {
+		// calculate the local coordinates of the body points
+		std::vector<std::vector<glm::dvec2>> body_pts_local(moving_bodies.size());
+		for (int i = 0; i < moving_bodies.size(); i++) {
+			body_pts_local[i].resize(moving_bodies[i].polygons[0].points.size());
+			glm::dmat3x3 inv_pose0 = glm::inverse(poses[i][0]);
+			for (int j = 0; j < moving_bodies[i].polygons[0].points.size(); j++) {
+				body_pts_local[i][j] = glm::dvec2(inv_pose0 * glm::dvec3(moving_bodies[i].polygons[0].points[j], 1));
+			}
+		}
+
+		// calculate the length of the motion using straight lines between poses
+		double length_of_straight = 0.0;
+		std::vector<std::vector<glm::dvec2>> prev_body_pts(moving_bodies.size());
+		for (int i = 0; i < moving_bodies.size(); i++) {
+			prev_body_pts[i] = moving_bodies[i].polygons[0].points;
+
+			for (int j = 1; j < poses[i].size(); j++) {
+				std::vector<glm::dvec2> next_body_pts(moving_bodies[i].polygons[0].points.size());
+				for (int k = 0; k < moving_bodies[i].polygons[0].points.size(); k++) {
+					next_body_pts[k] = glm::dvec2(poses[i][j] * glm::dvec3(body_pts_local[i][k], 1));
+					length_of_straight += glm::length(next_body_pts[k] - prev_body_pts[i][k]);
+				}
+				prev_body_pts[i] = next_body_pts;
+			}
+		}
+
+
+		// create a kinematics
+		std::vector<glm::dvec2> connector_pts;
+		kinematics::Kinematics kinematics = constructKinematics(poses, points, moving_bodies, false, {}, connector_pts);
+		kinematics.diagram.initialize();
+
+		// initialize the trajectory of the moving body
+		for (int i = 0; i < moving_bodies.size(); i++) {
+			prev_body_pts[i] = moving_bodies[i].polygons[0].points;
+		}
+		double length_of_trajectory = 0.0;
+
+		// calculate the rotational angle of the driving crank for 1st, 2nd, and last poses
+		// i.e., angles[0] = first pose, angles[1] = second pose, angles[2] = last pose
+		std::vector<double> angles(3);
+		glm::dvec2 p2(glm::inverse(poses[0][0]) * glm::dvec3(points[2], 1));
+		glm::dvec2 p3(glm::inverse(poses[0][0]) * glm::dvec3(points[3], 1));
+
+		for (int i = 0; i < 2; i++) {
+			glm::dvec2 P2(poses[0][i] * glm::dvec3(p2, 1));
+			glm::dvec2 P3(poses[0][i] * glm::dvec3(p3, 1));
+
+			angles[i] = atan2(P2.y - points[0].y, P2.x - points[0].x);
+		}
+		{
+			glm::dvec2 P2(poses[0].back() * glm::dvec3(p2, 1));
+			glm::dvec2 P3(poses[0].back() * glm::dvec3(p3, 1));
+
+			angles[2] = atan2(P2.y - points[0].y, P2.x - points[0].x);
+		}
+
+		// order the angles based on their signs
+		int type = 0;
+		if (angles[0] < 0 && angles[1] < 0 && angles[2] >= 0 && angles[0] >= angles[1]) {
+			type = 1;
+			angles[2] -= M_PI * 2;
+		}
+		else if (angles[0] < 0 && angles[1] >= 0 && angles[2] < 0 && angles[0] < angles[2]) {
+			type = 2;
+			angles[1] -= M_PI * 2;
+			angles[2] -= M_PI * 2;
+		}
+		else if (angles[0] < 0 && angles[1] >= 0 && angles[2] < 0 && angles[0] >= angles[2]) {
+			type = 3;
+			angles[2] += M_PI * 2;
+		}
+		else if (angles[0] < 0 && angles[1] >= 0 && angles[2] >= 0 && (poses[0].size() >= 3 && angles[1] >= angles[2] || poses[0].size() == 2 && angles[1] - angles[0] > M_PI)) {
+			type = 4;
+			angles[1] -= M_PI * 2;
+			angles[2] -= M_PI * 2;
+		}
+		else if (angles[0] >= 0 && angles[1] < 0 && angles[2] < 0 && (poses[0].size() >= 3 && angles[1] < angles[2] || poses[0].size() == 2 && angles[0] - angles[1] > M_PI)) {
+			type = 5;
+			angles[1] += M_PI * 2;
+			angles[2] += M_PI * 2;
+		}
+		else if (angles[0] >= 0 && angles[1] < 0 && angles[2] >= 0 && angles[0] < angles[2]) {
+			type = 6;
+			angles[2] -= M_PI * 2;
+		}
+		else if (angles[0] >= 0 && angles[1] < 0 && angles[2] >= 0 && angles[0] >= angles[2]) {
+			type = 7;
+			angles[1] += M_PI * 2;
+			angles[2] += M_PI * 2;
+		}
+		else if (angles[0] >= 0 && angles[1] >= 0 && angles[2] < 0 && angles[0] < angles[1]) {
+			type = 8;
+			angles[2] += M_PI * 2;
+		}
+
+		if (angles[2] < angles[0]) {
+			kinematics.invertSpeed();
+		}
+
+		// initialize the visited flag
+		std::vector<bool> visited(angles.size(), false);
+		visited[0] = true;
+		int unvisited = 2;
+
+		// run forward until collision is deteted or all the poses are reached
+		while (true) {
+			try {
+				kinematics.stepForward(false, false);	// no collision check
+			}
+			catch (char* ex) {
+				// if only some of the poses are reached before collision, the collision is detected.
+				kinematics.clear();
+				return length_of_trajectory / length_of_straight;
+			}
+
+			// calculate the angle of the driving crank
+			double angle = atan2(kinematics.diagram.joints[2]->pos.y - points[0].y, kinematics.diagram.joints[2]->pos.x - points[0].x);
+
+			// update the lengths of the trajectory of the moving body
+			for (int i = 0; i < moving_bodies.size(); i++) {
+				std::vector<glm::dvec2> next_body_pts = kinematics.diagram.bodies[i]->getActualPoints()[0];
+				for (int j = 0; j < next_body_pts.size(); j++) {
+					double length = glm::length(next_body_pts[j] - prev_body_pts[i][j]);
+					length_of_trajectory += length;
+				}
+				prev_body_pts[i] = next_body_pts;
+			}
+
+			// convert the sign of the angle
+			if (type == 1 && angle > 0) {
+				angle -= M_PI * 2;
+			}
+			else if (type == 2 && angle > angles[0]) {
+				angle -= M_PI * 2;
+			}
+			else if (type == 3 && angle < angles[0]) {
+				angle += M_PI * 2;
+			}
+			else if (type == 4 && angle > 0) {
+				angle -= M_PI * 2;
+			}
+			else if (type == 5 && angle < 0) {
+				angle += M_PI * 2;
+			}
+			else if (type == 6 && angle > angles[0]) {
+				angle -= M_PI * 2;
+			}
+			else if (type == 7 && angle < angles[0]) {
+				angle += M_PI * 2;
+			}
+			else if (type == 8 && angle < 0) {
+				angle += M_PI * 2;
+			}
+
+
+			// check if the poses are reached
+			for (int i = 0; i < angles.size(); i++) {
+				if (visited[i]) continue;
+
+				if (angles[2] >= angles[0]) {
+					if (angle >= angles[i]) {
+						visited[i] = true;
+						unvisited--;
+					}
+				}
+				else {
+					if (angle <= angles[i]) {
+						visited[i] = true;
+						unvisited--;
+					}
+				}
+			}
+
+			// if all the poses are reached without collision, no collision is detected.
+			if (unvisited == 0) {
+				kinematics.clear();
+				return length_of_trajectory / length_of_straight;
+			}
+		}
+
+		kinematics.clear();
+		return length_of_trajectory / length_of_straight;
 	}
 
 	/**

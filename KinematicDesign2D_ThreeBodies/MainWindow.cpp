@@ -243,7 +243,6 @@ void MainWindow::onGenerateLinkageWattI() {
 
 		std::vector<double> weights = {
 			dlg.ui.lineEditPositionErrorWeight->text().toDouble(),
-			dlg.ui.lineEditOrientationErrorWeight->text().toDouble(),
 			dlg.ui.lineEditLinkageLocationWeight->text().toDouble(),
 			dlg.ui.lineEditTrajectoryWeight->text().toDouble(),
 			dlg.ui.lineEditSizeWeight->text().toDouble()

@@ -6,14 +6,13 @@ LinkageSynthesisOptionDialog::LinkageSynthesisOptionDialog(QWidget *parent) : QD
 	ui.lineEditNumSamples->setText("10000");
 	ui.lineEditStdDevPositionFirst->setText("0");
 	ui.lineEditStdDevOrientationFirst->setText("0");
-	ui.lineEditStdDevPositionMiddle->setText("0");
-	ui.lineEditStdDevOrientationMiddle->setText("0");
+	ui.lineEditStdDevPositionMiddle->setText("0.8");
+	ui.lineEditStdDevOrientationMiddle->setText("0.04");
 	ui.lineEditStdDevPositionLast->setText("0");
 	ui.lineEditStdDevOrientationLast->setText("0");
 	ui.checkBoxAvoidBranchDefect->setChecked(true);
 	ui.lineEditMinTransmissionAngle->setText("0.15");
 	ui.lineEditPositionErrorWeight->setText("1");
-	ui.lineEditOrientationErrorWeight->setText("5");
 	ui.lineEditLinkageLocationWeight->setText("10");
 	ui.lineEditTrajectoryWeight->setText("1");
 	ui.lineEditSizeWeight->setText("1");
