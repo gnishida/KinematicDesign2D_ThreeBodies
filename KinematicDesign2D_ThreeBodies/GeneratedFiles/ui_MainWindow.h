@@ -281,6 +281,7 @@ public:
         actionRestrictMotionRange = new QAction(MainWindowClass);
         actionRestrictMotionRange->setObjectName(QStringLiteral("actionRestrictMotionRange"));
         actionRestrictMotionRange->setCheckable(true);
+        actionRestrictMotionRange->setChecked(true);
         centralWidget = new QWidget(MainWindowClass);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         MainWindowClass->setCentralWidget(centralWidget);

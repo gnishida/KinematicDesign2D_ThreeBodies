@@ -9,7 +9,7 @@
 
 namespace kinematics {
 
-	LinkageSynthesisWattI::LinkageSynthesisWattI(const std::vector<Object25D>& fixed_bodies, const std::vector<std::pair<double, double>>& sigmas, bool avoid_branch_defect, double min_transmission_angle, double min_link_length, const std::vector<double>& weights) {
+	LinkageSynthesisWattI::LinkageSynthesisWattI(const std::vector<Object25D>& fixed_bodies, const std::pair<double, double>& sigmas, bool avoid_branch_defect, double min_transmission_angle, double min_link_length, const std::vector<double>& weights) {
 		this->fixed_bodies = fixed_bodies;
 		this->sigmas = sigmas;
 		this->avoid_branch_defect = avoid_branch_defect;
@@ -54,6 +54,7 @@ namespace kinematics {
 			
 			// DEBUG
 			if (iter == 0) {
+				/*
 				points[0] = glm::dvec2(-3.76487, 25.9907);
 				points[1] = glm::dvec2(-4.06804, 17.4689);
 				points[2] = glm::dvec2(-21.797, 38.1363);
@@ -64,15 +65,28 @@ namespace kinematics {
 				points[7] = glm::dvec2(-42.8608, 18.9469);
 				points[8] = glm::dvec2(-47.912, 19.7987);
 				points[9] = glm::dvec2(-39.0381, 24.691);
+				*/
+				points[0] = glm::dvec2(-17.2217, 32.2086);
+				points[1] = glm::dvec2(-13.696, 28.6436);
+				points[2] = glm::dvec2(-21.9625, 36.6141);
+				points[3] = glm::dvec2(-18.3304, 31.9921);
+				points[4] = glm::dvec2(-24.0955, 37.5626);
+				points[5] = glm::dvec2(-23.0777, 37.2545);
+				points[6] = glm::dvec2(-24.0669, 27.1942);
+				points[7] = glm::dvec2(-41.6592, 22.9709);
+				points[8] = glm::dvec2(-38.9001, 18.4334);
+				points[9] = glm::dvec2(-33.6742, 26.0489);
+
 			}
 
-			if (iter > 0 && !optimizeCandidate(perturbed_poses, linkage_region_pts, bbox, points)) continue;
+			//if (!optimizeCandidate(perturbed_poses, linkage_region_pts, bbox, points)) continue;
 
 			// check hard constraints
-			if (iter > 0 && !checkHardConstraints(points, perturbed_poses, linkage_region_pts, linkage_avoidance_pts, moving_bodies)) continue;
+			//if (!checkHardConstraints(points, perturbed_poses, linkage_region_pts, linkage_avoidance_pts, moving_bodies)) continue;
 			
 			solutions.push_back(Solution(0, points, 0, 0, perturbed_poses));
 			cnt++;
+			break;
 		}
 
 		printf("\n");
@@ -205,7 +219,7 @@ namespace kinematics {
 	}
 
 	std::pair<double, double> LinkageSynthesisWattI::checkRange(const std::vector<std::vector<glm::dmat3x3>>& poses, const std::vector<glm::dvec2>& points) {
-		if (poses[0].size() == 2) {
+		if (poses[0].size() == 2 || poses[0].size() == 3) {
 			glm::dvec2 dir1 = points[2] - points[0];
 			glm::dvec2 dir2 = glm::dvec2(poses[0].back() * glm::inverse(poses[0][0]) * glm::dvec3(points[2], 1)) - points[0];
 

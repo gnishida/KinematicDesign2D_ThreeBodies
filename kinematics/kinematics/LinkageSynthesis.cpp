@@ -25,32 +25,17 @@ namespace kinematics {
 	/**
 	 * Perturbe the poses a little based on the sigma.
 	 */
-	std::vector<std::vector<glm::dmat3x3>> LinkageSynthesis::perturbPoses(const std::vector<std::vector<glm::dmat3x3>>& poses, std::vector<std::pair<double, double>>& sigmas, double& position_error, double& orientation_error) {
+	std::vector<std::vector<glm::dmat3x3>> LinkageSynthesis::perturbPoses(const std::vector<std::vector<glm::dmat3x3>>& poses, std::pair<double, double>& sigmas, double& position_error, double& orientation_error) {
 		std::vector<std::vector<glm::dmat3x3>> perturbed_poses = poses;
 
 		position_error = 0.0;
 		orientation_error = 0.0;
 
 		for (int i = 0; i < perturbed_poses.size(); i++) {
-			for (int j = 0; j < perturbed_poses[i].size(); j++) {
-				double e1 = 0;
-				double e2 = 0;
-				double delta_theta = 0;
-				if (j == 0) {	// first pose
-					e1 = genNormal(0, sigmas[0].first);
-					e2 = genNormal(0, sigmas[0].first);
-					delta_theta = genNormal(0, sigmas[0].second);
-				}
-				else if (j == perturbed_poses[i].size() - 1) {	// last pose
-					e1 = genNormal(0, sigmas[2].first);
-					e2 = genNormal(0, sigmas[2].first);
-					delta_theta = genNormal(0, sigmas[2].second);
-				}
-				else {	// poses in the middle
-					e1 = genNormal(0, sigmas[1].first);
-					e2 = genNormal(0, sigmas[1].first);
-					delta_theta = genNormal(0, sigmas[1].second);
-				}
+			for (int j = 1; j < perturbed_poses[i].size() - 1; j++) {
+				double e1 = genNormal(0, sigmas.first);
+				double e2 = genNormal(0, sigmas.first);
+				double delta_theta = genNormal(0, sigmas.second);
 
 				perturbed_poses[i][j][2][0] += e1;
 				perturbed_poses[i][j][2][1] += e2;

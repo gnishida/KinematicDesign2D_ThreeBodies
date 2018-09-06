@@ -235,11 +235,7 @@ void MainWindow::onLayerChanged() {
 void MainWindow::onGenerateLinkageWattI() {
 	LinkageSynthesisOptionDialog dlg;
 	if (dlg.exec()) {
-		std::vector<std::pair<double, double>> sigmas = {
-			std::make_pair(dlg.ui.lineEditStdDevPositionFirst->text().toDouble(), dlg.ui.lineEditStdDevOrientationFirst->text().toDouble()),
-			std::make_pair(dlg.ui.lineEditStdDevPositionMiddle->text().toDouble(), dlg.ui.lineEditStdDevOrientationMiddle->text().toDouble()),
-			std::make_pair(dlg.ui.lineEditStdDevPositionLast->text().toDouble(), dlg.ui.lineEditStdDevOrientationLast->text().toDouble())
-		};
+		std::pair<double, double> sigmas = { std::make_pair(dlg.ui.lineEditStdDevPosition->text().toDouble(), dlg.ui.lineEditStdDevOrientation->text().toDouble()) };
 
 		std::vector<double> weights = {
 			dlg.ui.lineEditPositionErrorWeight->text().toDouble(),
