@@ -560,6 +560,9 @@
    </property>
   </action>
   <action name="actionRestrictMotionRange">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Restrict Motion Range</string>
    </property>

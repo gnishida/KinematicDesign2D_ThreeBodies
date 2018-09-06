@@ -280,6 +280,7 @@ public:
         actionShowLinkage->setChecked(true);
         actionRestrictMotionRange = new QAction(MainWindowClass);
         actionRestrictMotionRange->setObjectName(QStringLiteral("actionRestrictMotionRange"));
+        actionRestrictMotionRange->setCheckable(true);
         centralWidget = new QWidget(MainWindowClass);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         MainWindowClass->setCentralWidget(centralWidget);
