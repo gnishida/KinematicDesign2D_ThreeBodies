@@ -433,6 +433,12 @@
    </property>
   </action>
   <action name="actionGenerateLinkageWattI">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset>
      <normaloff>Resources/watt_i_linkage.png</normaloff>Resources/watt_i_linkage.png</iconset>
