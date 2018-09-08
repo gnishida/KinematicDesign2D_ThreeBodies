@@ -222,6 +222,8 @@ public:
         actionDeleteLayer->setObjectName(QStringLiteral("actionDeleteLayer"));
         actionGenerateLinkageWattI = new QAction(MainWindowClass);
         actionGenerateLinkageWattI->setObjectName(QStringLiteral("actionGenerateLinkageWattI"));
+        actionGenerateLinkageWattI->setCheckable(true);
+        actionGenerateLinkageWattI->setChecked(true);
         QIcon icon14;
         icon14.addFile(QStringLiteral("Resources/watt_i_linkage.png"), QSize(), QIcon::Normal, QIcon::Off);
         actionGenerateLinkageWattI->setIcon(icon14);

@@ -84,7 +84,7 @@ namespace kinematics {
 			// check hard constraints
 			//if (!checkHardConstraints(points, perturbed_poses, linkage_region_pts, linkage_avoidance_pts, moving_bodies)) continue;
 			
-			solutions.push_back(Solution(0, points, 0, 0, perturbed_poses));
+			solutions.push_back(Solution(0, points, position_error, orientation_error, perturbed_poses));
 			cnt++;
 			break;
 		}
@@ -98,7 +98,7 @@ namespace kinematics {
 	*/
 	bool LinkageSynthesisWattI::optimizeCandidate(const std::vector<std::vector<glm::dmat3x3>>& poses, const std::vector<glm::dvec2>& linkage_region_pts, const BBox& bbox, std::vector<glm::dvec2>& points) {
 		if (!optimizeLink(poses, linkage_region_pts, bbox, points)) return false;
-		if (check(poses, points) > 1.0) return false;
+		if (check(poses, points) > 0.1) return false;
 
 		// Check if all the joints are within the linkage region
 		for (int i = 0; i < points.size(); i++) {
