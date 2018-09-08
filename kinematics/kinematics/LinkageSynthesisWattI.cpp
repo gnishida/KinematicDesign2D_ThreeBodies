@@ -79,10 +79,10 @@ namespace kinematics {
 
 			}
 
-			//if (!optimizeCandidate(perturbed_poses, linkage_region_pts, bbox, points)) continue;
+			if (!optimizeCandidate(perturbed_poses, linkage_region_pts, bbox, points)) continue;
 
 			// check hard constraints
-			//if (!checkHardConstraints(points, perturbed_poses, linkage_region_pts, linkage_avoidance_pts, moving_bodies)) continue;
+			if (!checkHardConstraints(points, perturbed_poses, linkage_region_pts, linkage_avoidance_pts, moving_bodies, 0.06)) continue;
 			
 			solutions.push_back(Solution(0, points, position_error, orientation_error, perturbed_poses));
 			cnt++;
@@ -154,7 +154,7 @@ namespace kinematics {
 			if (r >= 0 && r < dist_map.rows && c >= 0 && c < dist_map.cols) dist += dist_map.at<double>(r, c);
 			else dist += dist_map.rows + dist_map.cols;
 		}
-		double tortuosity = tortuosityOfTrajectory(solution.poses, solution.points, moving_bodies);
+		double tortuosity = tortuosityOfTrajectory(solution.poses, solution.points, moving_bodies, 0.06);
 		std::vector<glm::dvec2> connected_pts;
 		Kinematics kin = constructKinematics(solution.poses, solution.points, moving_bodies, true, fixed_bodies, connected_pts);
 		//double size = glm::length(solution.points[0] - solution.points[2]) + glm::length(solution.points[1] - solution.points[3]) + glm::length(solution.points[0] - connected_pts[0]) + glm::length(solution.points[1] - connected_pts[1]) + glm::length(solution.points[2] - connected_pts[2]) + glm::length(solution.points[3] - connected_pts[3]);
@@ -522,7 +522,7 @@ namespace kinematics {
 		kin.diagram.addBody(kin.diagram.joints[8], kin.diagram.joints[9], moving_bodies[2]);
 	}
 
-	bool LinkageSynthesisWattI::checkHardConstraints(std::vector<glm::dvec2>& points, const std::vector<std::vector<glm::dmat3x3>>& poses, const std::vector<glm::dvec2>& linkage_region_pts, const std::vector<glm::dvec2>& linkage_avoidance_pts, const std::vector<Object25D>& moving_bodies) {
+	bool LinkageSynthesisWattI::checkHardConstraints(std::vector<glm::dvec2>& points, const std::vector<std::vector<glm::dmat3x3>>& poses, const std::vector<glm::dvec2>& linkage_region_pts, const std::vector<glm::dvec2>& linkage_avoidance_pts, const std::vector<Object25D>& moving_bodies, double simulation_speed) {
 		if (glm::length(points[0] - points[1]) < min_link_length) return false;
 		if (glm::length(points[2] - points[3]) < min_link_length) return false;
 
@@ -534,14 +534,15 @@ namespace kinematics {
 		if (!withinLinkageRegion(points, poses, fixed_bodies, moving_bodies, linkage_region_pts)) return false;
 
 		// collision check
-		if (checkCollision(poses, points, fixed_bodies, moving_bodies)) return false;
+		if (checkCollision(poses, points, fixed_bodies, moving_bodies, simulation_speed)) return false;
 
 		return true;
 	}
 
-	bool LinkageSynthesisWattI::checkCollision(const std::vector<std::vector<glm::dmat3x3>>& poses, const std::vector<glm::dvec2>& points, const std::vector<Object25D>& fixed_bodies, const std::vector<Object25D>& moving_bodies) {
+	bool LinkageSynthesisWattI::checkCollision(const std::vector<std::vector<glm::dmat3x3>>& poses, const std::vector<glm::dvec2>& points, const std::vector<Object25D>& fixed_bodies, const std::vector<Object25D>& moving_bodies, double simulation_speed) {
 		std::vector<glm::dvec2> connector_pts;
 		kinematics::Kinematics kinematics = constructKinematics(poses, points, moving_bodies, false, fixed_bodies, connector_pts);
+		kinematics.simulation_speed = simulation_speed;
 		kinematics.diagram.initialize();
 
 		// calculate the rotational angle of the driving crank for 1st, 2nd, and last poses
@@ -707,7 +708,7 @@ namespace kinematics {
 		return true;
 	}
 
-	double LinkageSynthesisWattI::tortuosityOfTrajectory(const std::vector<std::vector<glm::dmat3x3>>& poses, const std::vector<glm::dvec2>& points, const std::vector<Object25D>& moving_bodies) {
+	double LinkageSynthesisWattI::tortuosityOfTrajectory(const std::vector<std::vector<glm::dmat3x3>>& poses, const std::vector<glm::dvec2>& points, const std::vector<Object25D>& moving_bodies, double simulation_speed) {
 		// calculate the local coordinates of the body points
 		std::vector<std::vector<glm::dvec2>> body_pts_local(moving_bodies.size());
 		for (int i = 0; i < moving_bodies.size(); i++) {
@@ -738,6 +739,7 @@ namespace kinematics {
 		// create a kinematics
 		std::vector<glm::dvec2> connector_pts;
 		kinematics::Kinematics kinematics = constructKinematics(poses, points, moving_bodies, false, {}, connector_pts);
+		kinematics.simulation_speed = simulation_speed;
 		kinematics.diagram.initialize();
 
 		// initialize the trajectory of the moving body
