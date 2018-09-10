@@ -86,7 +86,6 @@ namespace kinematics {
 			
 			solutions.push_back(Solution(0, points, position_error, orientation_error, perturbed_poses));
 			cnt++;
-			break;
 		}
 
 		printf("\n");
