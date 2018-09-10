@@ -75,6 +75,8 @@ public:
     QAction *actionShowInputPoses;
     QAction *actionShowLinkage;
     QAction *actionRestrictMotionRange;
+    QAction *actionSynthesisSettings;
+    QAction *actionWeightsWindow;
     QWidget *centralWidget;
     QMenuBar *menuBar;
     QMenu *menuFile;
@@ -92,7 +94,7 @@ public:
     {
         if (MainWindowClass->objectName().isEmpty())
             MainWindowClass->setObjectName(QStringLiteral("MainWindowClass"));
-        MainWindowClass->resize(702, 737);
+        MainWindowClass->resize(984, 737);
         actionExit = new QAction(MainWindowClass);
         actionExit->setObjectName(QStringLiteral("actionExit"));
         actionRun = new QAction(MainWindowClass);
@@ -222,8 +224,8 @@ public:
         actionDeleteLayer->setObjectName(QStringLiteral("actionDeleteLayer"));
         actionGenerateLinkageWattI = new QAction(MainWindowClass);
         actionGenerateLinkageWattI->setObjectName(QStringLiteral("actionGenerateLinkageWattI"));
-        actionGenerateLinkageWattI->setCheckable(true);
-        actionGenerateLinkageWattI->setChecked(true);
+        actionGenerateLinkageWattI->setCheckable(false);
+        actionGenerateLinkageWattI->setChecked(false);
         QIcon icon14;
         icon14.addFile(QStringLiteral("Resources/watt_i_linkage.png"), QSize(), QIcon::Normal, QIcon::Off);
         actionGenerateLinkageWattI->setIcon(icon14);
@@ -284,12 +286,16 @@ public:
         actionRestrictMotionRange->setObjectName(QStringLiteral("actionRestrictMotionRange"));
         actionRestrictMotionRange->setCheckable(true);
         actionRestrictMotionRange->setChecked(true);
+        actionSynthesisSettings = new QAction(MainWindowClass);
+        actionSynthesisSettings->setObjectName(QStringLiteral("actionSynthesisSettings"));
+        actionWeightsWindow = new QAction(MainWindowClass);
+        actionWeightsWindow->setObjectName(QStringLiteral("actionWeightsWindow"));
         centralWidget = new QWidget(MainWindowClass);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         MainWindowClass->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(MainWindowClass);
         menuBar->setObjectName(QStringLiteral("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 702, 21));
+        menuBar->setGeometry(QRect(0, 0, 984, 21));
         menuFile = new QMenu(menuBar);
         menuFile->setObjectName(QStringLiteral("menuFile"));
         menuTool = new QMenu(menuBar);
@@ -326,6 +332,8 @@ public:
         menuFile->addSeparator();
         menuFile->addAction(actionExit);
         menuTool->addAction(actionGenerateLinkageWattI);
+        menuTool->addAction(actionSynthesisSettings);
+        menuTool->addAction(actionWeightsWindow);
         menuTool->addSeparator();
         menuTool->addAction(actionRun);
         menuTool->addAction(actionRunBackward);
@@ -434,6 +442,8 @@ public:
         actionShowInputPoses->setText(QApplication::translate("MainWindowClass", "Show Input Poses", 0));
         actionShowLinkage->setText(QApplication::translate("MainWindowClass", "Show Linkage", 0));
         actionRestrictMotionRange->setText(QApplication::translate("MainWindowClass", "Restrict Motion Range", 0));
+        actionSynthesisSettings->setText(QApplication::translate("MainWindowClass", "Synthesis Settings", 0));
+        actionWeightsWindow->setText(QApplication::translate("MainWindowClass", "Weights Window", 0));
         menuFile->setTitle(QApplication::translate("MainWindowClass", "File", 0));
         menuTool->setTitle(QApplication::translate("MainWindowClass", "Kinematics", 0));
         menuMode->setTitle(QApplication::translate("MainWindowClass", "Mode", 0));

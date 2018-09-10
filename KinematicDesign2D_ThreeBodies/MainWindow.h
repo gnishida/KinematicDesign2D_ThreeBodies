@@ -4,6 +4,7 @@
 #include <QtWidgets/QMainWindow>
 #include "ui_MainWindow.h"
 #include "Canvas.h"
+#include "LinkageSynthesisWeightWidget.h"
 #include <vector>
 
 class MainWindow : public QMainWindow {
@@ -14,6 +15,7 @@ public:
 	std::vector<QAction*> menuLayers;
 	QActionGroup* groupLayer;
 	canvas::Canvas* canvas;
+	LinkageSynthesisWeightWidget* weightWidget;
 
 public:
 	MainWindow(QWidget *parent = 0);
@@ -41,6 +43,8 @@ public slots:
 	void onDeleteLayer();
 	void onLayerChanged();
 	void onGenerateLinkageWattI();
+	void onSynthesisSettings();
+	void onWeightsWindow();
 	void onRun();
 	void onRunBackward();
 	void onStop();

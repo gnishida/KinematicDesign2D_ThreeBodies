@@ -40,6 +40,17 @@ namespace canvas {
 		show_input_poses = true;
 		show_linkage = true;
 
+		// parameters for sampling and particle filter
+		num_samples = 10000;
+		stddev_position = 0.8;
+		stddev_orientation = 0.04;
+		avoid_branch_defect = true;
+		min_transmission_angle = 0.15;
+		weights = { 1, 10, 1, 1 };
+		num_particles = 100;
+		num_pf_iterations = 20;
+		record_pf = false;
+
 		selectedJoint = std::make_pair(-1, -1);
 		linkage_type = LINKAGE_WATTI;
 	}
@@ -260,7 +271,7 @@ namespace canvas {
 		return glm::dvec2(origin.x() + p.x * scale, origin.y() - p.y * scale);
 	}
 
-	void Canvas::calculateSolutions(int linkage_type, int num_samples, std::pair<double, double>& sigmas, bool avoid_branch_defect, double min_transmission_angle, const std::vector<double>& weights, int num_particles, int num_iterations, bool record_file) {
+	void Canvas::calculateSolutions(int linkage_type) {
 		mainWin->ui.statusBar->showMessage("Please wait for a moment...");
 
 		// change the mode to kinematics
@@ -274,9 +285,9 @@ namespace canvas {
 		// get the geometry of fixed rigid bodies, moving bodies, linkage regions
 		fixed_bodies.clear();
 		moving_bodies.resize(design.moving_bodies.size());
-		std::vector<std::vector<glm::dmat3x3>> poses(design.moving_bodies.size());
-		std::vector<std::vector<glm::dvec2>> linkage_region_pts;
-		std::vector<std::vector<glm::dvec2>> linkage_avoidance_pts;
+		poses.resize(design.moving_bodies.size());
+		linkage_region_pts.clear();
+		linkage_avoidance_pts.clear();
 
 		for (int i = 0; i < design.fixed_bodies.size(); i++) {
 			fixed_bodies.push_back(kinematics::Object25D(design.fixed_bodies[i]->getPoints()));
@@ -313,12 +324,12 @@ namespace canvas {
 		}
 
 		// merged fixed body
+		merged_fixed_bodies.clear();
 		std::vector<std::vector<glm::dvec2>> polygons(design.fixed_bodies.size());
 		for (int i = 0; i < design.fixed_bodies.size(); i++) {
 			polygons[i] = design.fixed_bodies[i]->getPoints();
 		}
 		polygons = kinematics::unionPolygon(polygons);
-		std::vector<kinematics::Object25D> merged_fixed_bodies;
 		for (int i = 0; i < polygons.size(); i++) {
 			merged_fixed_bodies.push_back(kinematics::Object25D(polygons[i]));
 		}
@@ -327,16 +338,15 @@ namespace canvas {
 		synthesis.clear();
 		synthesis.resize(1);
 
-		synthesis[0] = boost::shared_ptr<kinematics::LinkageSynthesis>(new kinematics::LinkageSynthesisWattI(merged_fixed_bodies, sigmas, avoid_branch_defect, min_transmission_angle, 1.0, weights));
+		synthesis[0] = boost::shared_ptr<kinematics::LinkageSynthesis>(new kinematics::LinkageSynthesisWattI(merged_fixed_bodies, { stddev_position, stddev_orientation }, avoid_branch_defect, min_transmission_angle, 1.0, weights));
 
+		initial_solutions.clear();
 		solutions.clear();
 		{
 			// calculate a distance mapt for the linkage region
 			cv::Mat dist_map;
 			kinematics::BBox dist_map_bbox;
 			kinematics::LinkageSynthesis::createDistanceMapForLinkageRegion(linkage_region_pts[0], 5, dist_map_bbox, dist_map);
-
-			std::vector<std::vector<kinematics::Solution>> current_solutions(1);
 
 			// calculate the center of the valid regions
 			kinematics::BBox bbox = kinematics::boundingBox(linkage_region_pts[0]);
@@ -355,18 +365,13 @@ namespace canvas {
 				// calculate the circle point curve and center point curve
 				for (int j = 0; j < synthesis.size(); j++) {
 					if (!synthesis[j]) continue;
-					synthesis[j]->calculateSolution(poses, enlarged_linkage_region_pts, linkage_avoidance_pts[0], num_samples, moving_bodies, current_solutions[j]);
-					cnt += current_solutions[j].size();
+					synthesis[j]->calculateSolution(poses, enlarged_linkage_region_pts, linkage_avoidance_pts[0], num_samples, moving_bodies, initial_solutions);
+					cnt += initial_solutions.size();
 				}
 			}
 
 			time_t end = clock();
 			std::cout << "Elapsed: " << (double)(end - start) / CLOCKS_PER_SEC << " sec for obtaining " << cnt << " candidates." << std::endl;
-
-
-
-			// calculate the circle point curve and center point curve
-			//synthesis->calculateSolution(poses, linkage_region_pts[0], num_samples, fixed_body_pts, body_pts, sigmas, rotatable_crank, avoid_branch_defect, 1.0, solutions[0]);
 
 			if (cnt == 0) {
 				mainWin->ui.statusBar->showMessage("No candidate was found.");
@@ -391,12 +396,12 @@ namespace canvas {
 			for (int j = 0; j < synthesis.size(); j++) {
 				if (!synthesis[j]) continue;
 
-				kinematics::Solution solution = synthesis[j]->findBestSolution(poses, current_solutions[j], enlarged_linkage_region_pts, dist_map, dist_map_bbox, linkage_avoidance_pts[0], moving_bodies, num_particles, num_iterations, record_file);
+				kinematics::Solution solution = synthesis[j]->findBestSolution(poses, initial_solutions, enlarged_linkage_region_pts, dist_map, dist_map_bbox, linkage_avoidance_pts[0], moving_bodies, num_particles, num_pf_iterations, record_pf);
 				if (solution.cost < selected_solution.cost) {
 					selected_solution = solution;
 				}
 
-				solutions.insert(solutions.end(), current_solutions[j].begin(), current_solutions[j].end());
+				solutions.insert(solutions.end(), initial_solutions.begin(), initial_solutions.end());
 			}
 
 			std::vector<glm::dvec2> connector_pts;
@@ -407,15 +412,6 @@ namespace canvas {
 			std::cout << "Elapsed: " << (double)(end - start) / CLOCKS_PER_SEC << " sec for finding the best solution. " << std::endl;
 		}
 
-
-
-		//kinematics::Solution solution = synthesis->findBestSolution(poses, solutions[0], fixed_body_pts, body_pts, position_error_weight, orientation_error_weight, linkage_location_weight, trajectory_weight, size_weight);
-		//kinematics::Kinematics kin = synthesis->constructKinematics(solution.points, body_pts);
-
-		//kinematics.push_back(kin);
-
-
-
 		// setup the kinematic system
 		for (int i = 0; i < kinematics.size(); i++) {
 			kinematics[i].initialize();
@@ -423,6 +419,83 @@ namespace canvas {
 
 		time_t end = clock();
 		std::cout << "Total computation time was " << (double)(end - start) / CLOCKS_PER_SEC << " sec." << std::endl;
+
+		update();
+	}
+
+	void Canvas::updateSolutions(int linkage_type) {
+		mainWin->ui.statusBar->showMessage("Please wait for a moment...");
+
+		// change the mode to kinematics
+		setMode(MODE_KINEMATICS);
+		mainWin->ui.actionKinematics->setChecked(true);
+
+		this->linkage_type = linkage_type;
+
+		kinematics.clear();
+		synthesis.clear();
+		synthesis.resize(1);
+
+		synthesis[0] = boost::shared_ptr<kinematics::LinkageSynthesis>(new kinematics::LinkageSynthesisWattI(merged_fixed_bodies, { stddev_position, stddev_orientation }, avoid_branch_defect, min_transmission_angle, 1.0, weights));
+
+		solutions.clear();
+		{
+			// calculate a distance mapt for the linkage region
+			cv::Mat dist_map;
+			kinematics::BBox dist_map_bbox;
+			kinematics::LinkageSynthesis::createDistanceMapForLinkageRegion(linkage_region_pts[0], 5, dist_map_bbox, dist_map);
+
+			// calculate the center of the valid regions
+			kinematics::BBox bbox = kinematics::boundingBox(linkage_region_pts[0]);
+			glm::dvec2 bbox_center = bbox.center();
+
+			std::vector<glm::dvec2> enlarged_linkage_region_pts;
+
+			int cnt = initial_solutions.size();
+
+			if (cnt == 0) {
+				mainWin->ui.statusBar->showMessage("No candidate was found.");
+			}
+
+			// use a default linkage if no solution is found
+			if (cnt == 0) {
+				for (int j = 0; j < synthesis.size(); j++) {
+					if (!synthesis[j]) continue;
+					kinematics::Kinematics kin;
+					solutions.push_back(kinematics::Solution(0, { { 0, 0 }, { 0, 2 }, { 2, 0 }, { 2, 2 }, { 2, 4 }, { 4, 2 }, { 4, 4 } }, 0, 0, poses));
+					std::vector<glm::dvec2> connector_pts;
+					kin = synthesis[j]->constructKinematics(poses, solutions.back().points, moving_bodies, true, fixed_bodies, connector_pts);
+					kinematics.push_back(kin);
+				}
+			}
+
+			time_t start = clock();
+
+			kinematics::Kinematics kin;
+			selected_solution.cost = std::numeric_limits<double>::max();
+			for (int j = 0; j < synthesis.size(); j++) {
+				if (!synthesis[j]) continue;
+
+				kinematics::Solution solution = synthesis[j]->findBestSolution(poses, initial_solutions, enlarged_linkage_region_pts, dist_map, dist_map_bbox, linkage_avoidance_pts[0], moving_bodies, num_particles, num_pf_iterations, record_pf);
+				if (solution.cost < selected_solution.cost) {
+					selected_solution = solution;
+				}
+
+				solutions.insert(solutions.end(), initial_solutions.begin(), initial_solutions.end());
+			}
+
+			std::vector<glm::dvec2> connector_pts;
+			kin = synthesis[selected_solution.linkage_type]->constructKinematics(selected_solution.poses, selected_solution.points, moving_bodies, true, fixed_bodies, connector_pts);
+			kinematics.push_back(kin);
+
+			time_t end = clock();
+			std::cout << "Elapsed: " << (double)(end - start) / CLOCKS_PER_SEC << " sec for finding the best solution. " << std::endl;
+		}
+
+		// setup the kinematic system
+		for (int i = 0; i < kinematics.size(); i++) {
+			kinematics[i].initialize();
+		}
 
 		update();
 	}

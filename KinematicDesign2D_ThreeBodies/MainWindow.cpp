@@ -1,6 +1,6 @@
 #include "MainWindow.h"
 #include <QFileDialog>
-#include "LinkageSynthesisOptionDialog.h"
+#include "SynthesisSettingsDialog.h"
 #include <vector>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
@@ -8,6 +8,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
 	canvas = new canvas::Canvas(this);
 	setCentralWidget(canvas);
+
+	// setup the docking widgets
+	weightWidget = new LinkageSynthesisWeightWidget(this, canvas->weights);
+	weightWidget->show();
+	addDockWidget(Qt::LeftDockWidgetArea, weightWidget);
 
 	QActionGroup* groupMode = new QActionGroup(this);
 	groupMode->addAction(ui.actionSelect);
@@ -49,6 +54,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 	connect(ui.actionInsertLayer, SIGNAL(triggered()), this, SLOT(onInsertLayer()));
 	connect(ui.actionDeleteLayer, SIGNAL(triggered()), this, SLOT(onDeleteLayer()));
 	connect(ui.actionGenerateLinkageWattI, SIGNAL(triggered()), this, SLOT(onGenerateLinkageWattI()));
+	connect(ui.actionSynthesisSettings, SIGNAL(triggered()), this, SLOT(onSynthesisSettings()));
+	connect(ui.actionWeightsWindow, SIGNAL(triggered()), this, SLOT(onWeightsWindow()));
 	connect(ui.actionRun, SIGNAL(triggered()), this, SLOT(onRun()));
 	connect(ui.actionRunBackward, SIGNAL(triggered()), this, SLOT(onRunBackward()));
 	connect(ui.actionStop, SIGNAL(triggered()), this, SLOT(onStop()));
@@ -233,27 +240,33 @@ void MainWindow::onLayerChanged() {
 }
 
 void MainWindow::onGenerateLinkageWattI() {
-	LinkageSynthesisOptionDialog dlg;
+	canvas->calculateSolutions(canvas::Canvas::LINKAGE_WATTI);
+}
+
+void MainWindow::onSynthesisSettings() {
+	SynthesisSettingsDialog dlg;
+	dlg.setNumSamples(canvas->num_samples);
+	dlg.setStdDevPosition(canvas->stddev_position);
+	dlg.setStdDevOrientation(canvas->stddev_orientation);
+	dlg.setAvoidBranchDefect(canvas->avoid_branch_defect);
+	dlg.setMinTransmissionAngle(canvas->min_transmission_angle);
+	dlg.setNumParticles(canvas->num_particles);
+	dlg.setNumIterations(canvas->num_pf_iterations);
+	dlg.setRecordFile(canvas->record_pf);
 	if (dlg.exec()) {
-		std::pair<double, double> sigmas = { std::make_pair(dlg.ui.lineEditStdDevPosition->text().toDouble(), dlg.ui.lineEditStdDevOrientation->text().toDouble()) };
-
-		std::vector<double> weights = {
-			dlg.ui.lineEditPositionErrorWeight->text().toDouble(),
-			dlg.ui.lineEditLinkageLocationWeight->text().toDouble(),
-			dlg.ui.lineEditTrajectoryWeight->text().toDouble(),
-			dlg.ui.lineEditSizeWeight->text().toDouble()
-		};
-
-		canvas->calculateSolutions(canvas::Canvas::LINKAGE_WATTI,
-			dlg.ui.lineEditNumSamples->text().toInt(),
-			sigmas,
-			dlg.ui.checkBoxAvoidBranchDefect->isChecked(),
-			dlg.ui.lineEditMinTransmissionAngle->text().toDouble(),
-			weights,
-			dlg.ui.lineEditNumParticles->text().toInt(),
-			dlg.ui.lineEditNumIterations->text().toInt(),
-			dlg.ui.checkBoxRecordFile->isChecked());
+		canvas->num_samples = dlg.getNumSamples();
+		canvas->stddev_position = dlg.getStdDevPosition();
+		canvas->stddev_orientation = dlg.getStdDevOrientation();
+		canvas->avoid_branch_defect = dlg.getAvoidBranchDefect();
+		canvas->min_transmission_angle = dlg.getMinTransmissionAngle();
+		canvas->num_particles = dlg.getNumParticles();
+		canvas->num_pf_iterations = dlg.getNumIterations();
+		canvas->record_pf = dlg.getRecordFile();
 	}
+}
+
+void MainWindow::onWeightsWindow() {
+	weightWidget->show();
 }
 
 void MainWindow::onRun() {

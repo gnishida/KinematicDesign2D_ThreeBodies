@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>702</width>
+    <width>984</width>
     <height>737</height>
    </rect>
   </property>
@@ -19,7 +19,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>702</width>
+     <width>984</width>
      <height>21</height>
     </rect>
    </property>
@@ -38,6 +38,8 @@
      <string>Kinematics</string>
     </property>
     <addaction name="actionGenerateLinkageWattI"/>
+    <addaction name="actionSynthesisSettings"/>
+    <addaction name="actionWeightsWindow"/>
     <addaction name="separator"/>
     <addaction name="actionRun"/>
     <addaction name="actionRunBackward"/>
@@ -434,10 +436,10 @@
   </action>
   <action name="actionGenerateLinkageWattI">
    <property name="checkable">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="checked">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="icon">
     <iconset>
@@ -574,6 +576,16 @@
    </property>
    <property name="text">
     <string>Restrict Motion Range</string>
+   </property>
+  </action>
+  <action name="actionSynthesisSettings">
+   <property name="text">
+    <string>Synthesis Settings</string>
+   </property>
+  </action>
+  <action name="actionWeightsWindow">
+   <property name="text">
+    <string>Weights Window</string>
    </property>
   </action>
  </widget>

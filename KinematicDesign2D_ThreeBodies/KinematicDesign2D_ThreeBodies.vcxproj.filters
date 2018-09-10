@@ -116,15 +116,6 @@
     <ClCompile Include="..\kinematics\kinematics\LeastSquareSolver.cpp">
       <Filter>Source Files\kinematics</Filter>
     </ClCompile>
-    <ClCompile Include="LinkageSynthesisOptionDialog.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_LinkageSynthesisOptionDialog.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_LinkageSynthesisOptionDialog.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
     <ClCompile Include="..\kinematics\kinematics\Solution.cpp">
       <Filter>Source Files\kinematics</Filter>
     </ClCompile>
@@ -140,6 +131,24 @@
     <ClCompile Include="..\kinematics\kinematics\clipper.cpp">
       <Filter>Source Files\kinematics</Filter>
     </ClCompile>
+    <ClCompile Include="SynthesisSettingsDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_SynthesisSettingsDialog.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_SynthesisSettingsDialog.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="LinkageSynthesisWeightWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_LinkageSynthesisWeightWidget.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_LinkageSynthesisWeightWidget.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="MainWindow.h">
@@ -154,10 +163,16 @@
     <CustomBuild Include="Canvas.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="LinkageSynthesisOptionDialog.h">
+    <CustomBuild Include="SynthesisSettingsDialog.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="LinkageSynthesisOptionDialog.ui">
+    <CustomBuild Include="SynthesisSettingsDialog.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="LinkageSynthesisWeightWidget.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="LinkageSynthesisWeightWidget.ui">
       <Filter>Form Files</Filter>
     </CustomBuild>
   </ItemGroup>
@@ -222,9 +237,6 @@
     <ClInclude Include="..\kinematics\kinematics\LeastSquareSolver.h">
       <Filter>Source Files\kinematics</Filter>
     </ClInclude>
-    <ClInclude Include="GeneratedFiles\ui_LinkageSynthesisOptionDialog.h">
-      <Filter>Generated Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\kinematics\kinematics\Solution.h">
       <Filter>Source Files\kinematics</Filter>
     </ClInclude>
@@ -239,6 +251,12 @@
     </ClInclude>
     <ClInclude Include="..\kinematics\kinematics\clipper.hpp">
       <Filter>Source Files\kinematics</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_SynthesisSettingsDialog.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_LinkageSynthesisWeightWidget.h">
+      <Filter>Generated Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
