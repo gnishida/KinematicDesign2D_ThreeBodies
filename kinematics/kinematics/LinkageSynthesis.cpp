@@ -100,9 +100,7 @@ namespace kinematics {
 		dist_map.convertTo(dist_map, CV_64F);
 	}
 
-	void LinkageSynthesis::particleFilter(std::vector<Solution>& solutions, const std::vector<glm::dvec2>& linkage_region_pts, const cv::Mat& dist_map, const BBox& dist_map_bbox, const std::vector<glm::dvec2>& linkage_avoidance_pts, const std::vector<Object25D>& moving_bodies, int num_particles, int num_iterations, bool record_file) {
-		BBox linkage_region_bbox = boundingBox(linkage_region_pts);
-
+	void LinkageSynthesis::particleFilter(std::vector<Solution>& solutions, const cv::Mat& dist_map, const BBox& dist_map_bbox, const std::vector<Object25D>& moving_bodies, int num_particles, int num_iterations, bool record_file) {
 		std::vector<Solution> particles(std::max((int)solutions.size(), num_particles));
 		double max_cost = 0;
 
@@ -152,9 +150,9 @@ namespace kinematics {
 					new_particles[i].points[j].y += genRand(-1, 1);
 				}
 
-				if (optimizeCandidate(new_particles[i].poses, linkage_region_pts, linkage_region_bbox, new_particles[i].points)) {
+				if (optimizeCandidate(new_particles[i].poses, new_particles[i].points)) {
 					// check the hard constraints
-					if (checkHardConstraints(new_particles[i].points, new_particles[i].poses, linkage_region_pts, linkage_avoidance_pts, moving_bodies, 0.06)) {
+					if (checkHardConstraints(new_particles[i].points, new_particles[i].poses, moving_bodies, 0.06)) {
 						// calculate the score
 						new_particles[i].cost = calculateCost(new_particles[i], moving_bodies, dist_map, dist_map_bbox);
 					}

@@ -396,7 +396,7 @@ namespace canvas {
 			for (int j = 0; j < synthesis.size(); j++) {
 				if (!synthesis[j]) continue;
 
-				kinematics::Solution solution = synthesis[j]->findBestSolution(poses, initial_solutions, enlarged_linkage_region_pts, dist_map, dist_map_bbox, linkage_avoidance_pts[0], moving_bodies, num_particles, num_pf_iterations, record_pf);
+				kinematics::Solution solution = synthesis[j]->findBestSolution(poses, initial_solutions, dist_map, dist_map_bbox, moving_bodies, num_particles, num_pf_iterations, record_pf);
 				if (solution.cost < selected_solution.cost) {
 					selected_solution = solution;
 				}
@@ -476,7 +476,7 @@ namespace canvas {
 			for (int j = 0; j < synthesis.size(); j++) {
 				if (!synthesis[j]) continue;
 
-				kinematics::Solution solution = synthesis[j]->findBestSolution(poses, initial_solutions, enlarged_linkage_region_pts, dist_map, dist_map_bbox, linkage_avoidance_pts[0], moving_bodies, num_particles, num_pf_iterations, record_pf);
+				kinematics::Solution solution = synthesis[j]->findBestSolution(poses, initial_solutions, dist_map, dist_map_bbox, moving_bodies, num_particles, num_pf_iterations, record_pf);
 				if (solution.cost < selected_solution.cost) {
 					selected_solution = solution;
 				}
