@@ -396,12 +396,13 @@ namespace canvas {
 			for (int j = 0; j < synthesis.size(); j++) {
 				if (!synthesis[j]) continue;
 
-				kinematics::Solution solution = synthesis[j]->findBestSolution(poses, initial_solutions, dist_map, dist_map_bbox, moving_bodies, num_particles, num_pf_iterations, record_pf);
+				std::vector<kinematics::Solution> copied_solutions = initial_solutions;
+				kinematics::Solution solution = synthesis[j]->findBestSolution(poses, copied_solutions, dist_map, dist_map_bbox, moving_bodies, num_particles, num_pf_iterations, record_pf);
 				if (solution.cost < selected_solution.cost) {
 					selected_solution = solution;
 				}
 
-				solutions.insert(solutions.end(), initial_solutions.begin(), initial_solutions.end());
+				solutions.insert(solutions.end(), copied_solutions.begin(), copied_solutions.end());
 			}
 
 			std::vector<glm::dvec2> connector_pts;
@@ -476,12 +477,13 @@ namespace canvas {
 			for (int j = 0; j < synthesis.size(); j++) {
 				if (!synthesis[j]) continue;
 
-				kinematics::Solution solution = synthesis[j]->findBestSolution(poses, initial_solutions, dist_map, dist_map_bbox, moving_bodies, num_particles, num_pf_iterations, record_pf);
+				std::vector<kinematics::Solution> copied_solutions = initial_solutions;
+				kinematics::Solution solution = synthesis[j]->findBestSolution(poses, copied_solutions, dist_map, dist_map_bbox, moving_bodies, num_particles, num_pf_iterations, record_pf);
 				if (solution.cost < selected_solution.cost) {
 					selected_solution = solution;
 				}
 
-				solutions.insert(solutions.end(), initial_solutions.begin(), initial_solutions.end());
+				solutions.insert(solutions.end(), copied_solutions.begin(), copied_solutions.end());
 			}
 
 			std::vector<glm::dvec2> connector_pts;

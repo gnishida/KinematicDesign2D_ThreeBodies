@@ -51,7 +51,7 @@ namespace kinematics {
 					if (withinPolygon(linkage_region_pts, points[i])) break;
 				}
 			}
-			
+
 			if (!optimizeCandidate(perturbed_poses, points)) continue;
 
 			// check hard constraints
@@ -89,12 +89,11 @@ namespace kinematics {
 		return true;
 	}
 
-	Solution LinkageSynthesisWattI::findBestSolution(const std::vector<std::vector<glm::dmat3x3>>& poses, const std::vector<Solution>& solutions, const cv::Mat& dist_map, const BBox& dist_map_bbox, const std::vector<Object25D>& moving_bodies, int num_particles, int num_iterations, bool record_file) {
+	Solution LinkageSynthesisWattI::findBestSolution(const std::vector<std::vector<glm::dmat3x3>>& poses, std::vector<Solution>& solutions, const cv::Mat& dist_map, const BBox& dist_map_bbox, const std::vector<Object25D>& moving_bodies, int num_particles, int num_iterations, bool record_file) {
 		// select the best solution based on the trajectory
 		if (solutions.size() > 0) {
-			std::vector<Solution> particles = solutions;
-			particleFilter(particles, dist_map, dist_map_bbox, moving_bodies, num_particles, num_iterations, record_file);
-			return particles[0];
+			particleFilter(solutions, dist_map, dist_map_bbox, moving_bodies, num_particles, num_iterations, record_file);
+			return solutions[0];
 		}
 		else {
 			return Solution(0, { { 0, 0 }, { 2, 0 }, { 0, 2 }, { 2, 2 }, { 1, 3 }, { 3, 3 }, { 3, 5 }, { 5, 7 }, { 6, 8 }, { 8, 10 } }, 0, 0, poses);
@@ -231,7 +230,7 @@ namespace kinematics {
 				return{ std::min(angle1, angle3), std::max(angle1, angle3) };
 			}
 		}
-		
+
 		return{ 0, 0 };
 	}
 
@@ -298,18 +297,18 @@ namespace kinematics {
 	}
 
 	/**
-	 * Check if all the poses are in the same branch.
-	 * Drag-link and crank-rocker always do not have a branch defect.
-	 * For other types of linkage, the change in the sign of the angle between the coupler and the follower indicates the change of the branch.
-	 * If there is an branch defect, true is returned. Otherwise, false is returned.
-	 *
-	 * @param poses	pose matrices
-	 * @param p0		the world coordinates of the fixed point of the driving crank at the first pose
-	 * @param p1		the world coordinates of the fixed point of the follower at the first pose
-	 * @param p2		the world coordinates of the moving point of the driving crank at the first pose
-	 * @param p3		the world coordinates of the moving point of the follower at the first pose
-	 * @return		true if the branch defect is detected, false otherwise
-	 */
+	* Check if all the poses are in the same branch.
+	* Drag-link and crank-rocker always do not have a branch defect.
+	* For other types of linkage, the change in the sign of the angle between the coupler and the follower indicates the change of the branch.
+	* If there is an branch defect, true is returned. Otherwise, false is returned.
+	*
+	* @param poses	pose matrices
+	* @param p0		the world coordinates of the fixed point of the driving crank at the first pose
+	* @param p1		the world coordinates of the fixed point of the follower at the first pose
+	* @param p2		the world coordinates of the moving point of the driving crank at the first pose
+	* @param p3		the world coordinates of the moving point of the follower at the first pose
+	* @return		true if the branch defect is detected, false otherwise
+	*/
 	bool LinkageSynthesisWattI::checkBranchDefect(const std::vector<std::vector<glm::dmat3x3>>& poses, const std::vector<glm::dvec2>& points) {
 		int type = getType(points);
 
