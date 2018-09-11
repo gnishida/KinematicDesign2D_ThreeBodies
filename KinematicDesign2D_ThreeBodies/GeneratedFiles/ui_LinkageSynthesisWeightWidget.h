@@ -146,13 +146,13 @@ public:
         label_15->setText(QApplication::translate("LinkageSynthesisWeightWidget", "Location:", 0));
         label_3->setText(QApplication::translate("LinkageSynthesisWeightWidget", "Accuracy:", 0));
         label_4->setText(QApplication::translate("LinkageSynthesisWeightWidget", "Smoothness:", 0));
-        labelPositionErrorMin->setText(QApplication::translate("LinkageSynthesisWeightWidget", "1", 0));
+        labelPositionErrorMin->setText(QApplication::translate("LinkageSynthesisWeightWidget", "0", 0));
         pushButtonApply->setText(QApplication::translate("LinkageSynthesisWeightWidget", "Apply", 0));
         labelPositionErrorMax->setText(QApplication::translate("LinkageSynthesisWeightWidget", "10", 0));
-        labelLinkageLocationMin->setText(QApplication::translate("LinkageSynthesisWeightWidget", "1", 0));
+        labelLinkageLocationMin->setText(QApplication::translate("LinkageSynthesisWeightWidget", "0", 0));
         labelLinkageLocationMax->setText(QApplication::translate("LinkageSynthesisWeightWidget", "10", 0));
-        labelTrajectoryMin->setText(QApplication::translate("LinkageSynthesisWeightWidget", "1", 0));
-        labelSizeMin->setText(QApplication::translate("LinkageSynthesisWeightWidget", "1", 0));
+        labelTrajectoryMin->setText(QApplication::translate("LinkageSynthesisWeightWidget", "0", 0));
+        labelSizeMin->setText(QApplication::translate("LinkageSynthesisWeightWidget", "0", 0));
         labelTrajectoryMax->setText(QApplication::translate("LinkageSynthesisWeightWidget", "10", 0));
         labelSizeMax->setText(QApplication::translate("LinkageSynthesisWeightWidget", "10", 0));
     } // retranslateUi
