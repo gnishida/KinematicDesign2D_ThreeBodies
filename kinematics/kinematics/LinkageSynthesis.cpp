@@ -100,7 +100,7 @@ namespace kinematics {
 		dist_map.convertTo(dist_map, CV_64F);
 	}
 
-	void LinkageSynthesis::particleFilter(std::vector<Solution>& solutions, const cv::Mat& dist_map, const BBox& dist_map_bbox, const std::vector<Object25D>& moving_bodies, int num_particles, int num_iterations, bool record_file) {
+	void LinkageSynthesis::particleFilter(const std::vector<std::vector<glm::dmat3x3>>& poses, std::vector<Solution>& solutions, const cv::Mat& dist_map, const BBox& dist_map_bbox, const std::vector<Object25D>& moving_bodies, int num_particles, int num_iterations, bool record_file) {
 		std::vector<Solution> particles(std::max((int)solutions.size(), num_particles));
 		double max_cost = 0;
 
@@ -140,6 +140,9 @@ namespace kinematics {
 			// perturb the particles and calculate its score
 			std::vector<Solution> new_particles = particles;
 			for (int i = 0; i < new_particles.size(); i++) {
+				// perturbe the poses a little
+				new_particles[i].poses = perturbPoses(poses, sigmas, new_particles[i].position_error, new_particles[i].orientation_error);
+
 				// pertube the joints
 				for (int j = 0; j < new_particles[i].points.size(); j++) {
 					new_particles[i].points[j].x += genRand(-perturb_size, perturb_size);
